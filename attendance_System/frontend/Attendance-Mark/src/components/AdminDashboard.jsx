@@ -3,6 +3,12 @@ import React, { useState } from "react";
 function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [showAddTeacher, setShowAddTeacher] = useState(false);
+  const [newTeacher, setNewTeacher] = useState({
+    name: "",
+    subject: "",
+    email: "",
+  });
 
   const attendanceRecords = [
     { id: 1, className: "10A", date: "2025-10-13", present: 28, absent: 2 },
@@ -40,8 +46,18 @@ function AdminDashboard() {
     document.body.removeChild(link);
   };
 
+  // Add Teacher Handler
+  const handleAddTeacher = (e) => {
+    e.preventDefault();
+    console.log("New Teacher Added:", newTeacher);
+    alert(`Teacher ${newTeacher.name} added successfully!`);
+    setShowAddTeacher(false);
+    setNewTeacher({ name: "", subject: "", email: "" });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+      {/* Header */}
       <header className="w-full max-w-6xl flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
         <p className="text-gray-600 font-medium">
@@ -49,6 +65,7 @@ function AdminDashboard() {
         </p>
       </header>
 
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-6xl mb-8">
         <div className="bg-white rounded-2xl shadow p-6 text-center">
           <h2 className="text-lg font-semibold text-gray-700">
@@ -68,21 +85,32 @@ function AdminDashboard() {
         </div>
       </div>
 
-      <div className="w-full max-w-6xl mb-4 flex justify-between items-center">
+      {/* Search + Download + Add Teacher */}
+      <div className="w-full max-w-6xl mb-4 flex flex-wrap gap-3 justify-between items-center">
         <input
           type="text"
           placeholder="Search by class or date..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-3/4 border rounded-xl py-2 px-4 shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+          className="flex-1 border rounded-xl py-2 px-4 shadow-sm focus:ring-2 focus:ring-blue-400 outline-none min-w-[250px]"
         />
-        <button
-          onClick={handleDownload}
-          className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition">
-          Download CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleDownload}
+            className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition"
+          >
+            Download CSV
+          </button>
+          <button
+            onClick={() => setShowAddTeacher(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition"
+          >
+            Add Teacher
+          </button>
+        </div>
       </div>
 
+      {/* Attendance Table */}
       <div className="w-full max-w-6xl bg-white rounded-2xl shadow-md overflow-hidden">
         <table className="min-w-full text-sm text-gray-700">
           <thead className="bg-gray-200 text-gray-800">
@@ -98,7 +126,8 @@ function AdminDashboard() {
             {filteredRecords.map((record) => (
               <tr
                 key={record.id}
-                className="border-t hover:bg-gray-50 transition">
+                className="border-t hover:bg-gray-50 transition"
+              >
                 <td className="py-3 px-4">{record.className}</td>
                 <td className="py-3 px-4">{record.date}</td>
                 <td className="py-3 px-4 text-center text-green-600 font-medium">
@@ -110,7 +139,8 @@ function AdminDashboard() {
                 <td className="py-3 px-4 text-center">
                   <button
                     onClick={() => handleViewDetails(record)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white py-1 px-4 rounded-lg transition text-sm">
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-1 px-4 rounded-lg transition text-sm"
+                  >
                     View Details
                   </button>
                 </td>
@@ -120,7 +150,8 @@ function AdminDashboard() {
               <tr>
                 <td
                   colSpan="5"
-                  className="text-center py-6 text-gray-500 font-medium">
+                  className="text-center py-6 text-gray-500 font-medium"
+                >
                   No records found.
                 </td>
               </tr>
@@ -129,31 +160,139 @@ function AdminDashboard() {
         </table>
       </div>
 
-      {selectedRecord && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-11/12 max-w-lg relative shadow-xl">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
-              {selectedRecord.className} - {selectedRecord.date}
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Present: {selectedRecord.present} | Absent:{" "}
-              {selectedRecord.absent}
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {Array.from({ length: selectedRecord.present }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center space-x-2 bg-gray-100 rounded-xl p-2">
-                  <div className="w-10 h-10 rounded-full bg-blue-300 flex items-center justify-center text-white font-semibold">
-                    {String.fromCharCode(65 + (i % 26))}
-                  </div>
-                  <p className="font-medium text-gray-700">Student {i + 1}</p>
+      {/* Details Modal */}
+      {selectedRecord &&
+        (() => {
+          const totalStudents = selectedRecord.present + selectedRecord.absent;
+          const absentIndexes = new Set();
+          while (absentIndexes.size < selectedRecord.absent) {
+            absentIndexes.add(Math.floor(Math.random() * totalStudents));
+          }
+
+          return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+              <div className="bg-white rounded-2xl p-6 w-11/12 max-w-lg relative shadow-xl max-h-[80vh] overflow-y-auto">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                  {selectedRecord.className} - {selectedRecord.date}
+                </h2>
+                <p className="text-gray-700 mb-4">
+                  Present: {selectedRecord.present} | Absent:{" "}
+                  {selectedRecord.absent}
+                </p>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {Array.from({ length: totalStudents }).map((_, i) => {
+                    const isAbsent = absentIndexes.has(i);
+                    return (
+                      <div
+                        key={i}
+                        className={`flex items-center space-x-2 rounded-xl p-2 ${
+                          isAbsent
+                            ? "bg-red-100 border border-red-300"
+                            : "bg-green-100 border border-green-300"
+                        }`}
+                      >
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${
+                            isAbsent ? "bg-red-400" : "bg-green-400"
+                          }`}
+                        >
+                          {String.fromCharCode(65 + (i % 26))}
+                        </div>
+                        <p
+                          className={`font-medium ${
+                            isAbsent ? "text-red-700" : "text-green-700"
+                          }`}
+                        >
+                          Student {i + 1} ({isAbsent ? "Absent" : "Present"})
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+
+                <button
+                  onClick={closeModal}
+                  className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
             </div>
+          );
+        })()}
+
+      {/* Add Teacher Modal */}
+      {showAddTeacher && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-11/12 max-w-md relative shadow-xl">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">
+              Add New Teacher
+            </h2>
+            <form onSubmit={handleAddTeacher} className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={newTeacher.name}
+                  onChange={(e) =>
+                    setNewTeacher({ ...newTeacher, name: e.target.value })
+                  }
+                  required
+                  className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  value={newTeacher.subject}
+                  onChange={(e) =>
+                    setNewTeacher({ ...newTeacher, subject: e.target.value })
+                  }
+                  required
+                  className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={newTeacher.email}
+                  onChange={(e) =>
+                    setNewTeacher({ ...newTeacher, email: e.target.value })
+                  }
+                  required
+                  className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAddTeacher(false)}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+                >
+                  Add Teacher
+                </button>
+              </div>
+            </form>
             <button
-              onClick={closeModal}
-              className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl font-bold">
+              onClick={() => setShowAddTeacher(false)}
+              className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl font-bold"
+            >
               ×
             </button>
           </div>
