@@ -6,9 +6,10 @@ import morgan from "morgan"; // For logging HTTP requests (useful for debugging)
 import dotenv, { config } from "dotenv"; // To load environment variables from .env file
 // import { ConnectDB } from "./config/db.js"; // Import database connection function (custom file)
 import Authrouter from "./router/Auth.route.js";
-import AdminRegister from "./router/Auth.route.js";
-import TeacherLogin from "./router/Auth.route.js";
-import AdminLogin from "./router/Auth.route.js";
+import AddStudent from "./router/student.route.js";
+import AddClass from "./router/class.route.js";
+import createSubClass from "./router/subClass.route.js";
+import attendanceImagerouter from "./router/attendanceImage.route.js";
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -43,9 +44,10 @@ app.use(
 app.use(morgan("dev"));
 
 app.use("/api/v1", Authrouter);
-app.use("/api/v1", AdminRegister);
-app.use("/api/v1", TeacherLogin);
-app.use("/api/v1", AdminLogin);
+app.use("/api/v1", AddStudent);
+app.use("/api/v1", AddClass);
+app.use("/api/v1", createSubClass);
+app.use("/api/v1", attendanceImagerouter);
 
 // Test route — when user visits "/", send a success message
 app.get("/", (req, res) => {

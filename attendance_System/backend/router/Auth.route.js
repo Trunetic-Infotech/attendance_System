@@ -6,6 +6,7 @@ import {
   AuthRegister,
   TeacherLogin,
 } from "../controllers/AuthController.js";
+import { uploaded } from "../utils/multer.js";
 
 const router = express.Router();
 
