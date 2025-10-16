@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function TeacherLogin() {
-  const [teacherId, setTeacherId] = useState("");
+  const [teacheremail, setTeacherEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -11,14 +11,14 @@ function TeacherLogin() {
     e.preventDefault();
 
     // Basic validation
-    if (!teacherId || !password) {
+    if (!teacheremail || !password) {
       setError("Please enter both Teacher ID and Password");
       return;
     }
 
     // Dummy login (for frontend only)
-    if (teacherId === "teacher1" && password === "12345") {
-      localStorage.setItem("teacher", JSON.stringify({ teacherId }));
+    if (teacheremail === "teacher1@gmail.com" && password === "12345") {
+      localStorage.setItem("teacher", JSON.stringify({ teacheremail}));
       navigate("/teacher");
     } else {
       setError("Invalid credentials");
@@ -39,14 +39,14 @@ function TeacherLogin() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-gray-700 font-medium mb-1">
-              Teacher ID
+              Email
             </label>
             <input
-              type="text"
-              value={teacherId}
-              onChange={(e) => setTeacherId(e.target.value)}
+              type="email"
+              value={teacheremail}
+              onChange={(e) => setTeacherEmail(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              placeholder="Enter your ID"
+              placeholder="Enter your Email"
             />
           </div>
 
