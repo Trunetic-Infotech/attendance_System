@@ -1,13 +1,46 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import AddStudentModal from "../modals/AddStudentModal";
+import AddTeacherModal from "../modals/AddTeacherModal";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [showAddTeacher, setShowAddTeacher] = useState(false);
+  const [showAddStudent, setShowAddStudent] = useState(false);
   const [newTeacher, setNewTeacher] = useState({
-    name: "",
-    subject: "",
+    teacherId: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
     email: "",
+    gender: "",
+    subject: "",
+    aadhar: "",
+    experience: "",
+    dob: "",
+    address: "",
+    createdAt: "",
+    password: "",
+    role: "Teacher",
+  });
+
+  const [newStudent, setNewStudent] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    gender: "",
+    dob: "",
+    address: "",
+    aadhar: "",
+    classId: "",
+    subClassId: "",
+    createdAt: "",
+    updatedAt: "",
+    image: null,
   });
 
   const attendanceRecords = [
@@ -55,6 +88,28 @@ function AdminDashboard() {
     setNewTeacher({ name: "", subject: "", email: "" });
   };
 
+  const handleAddStudent = (e) => {
+    e.preventDefault();
+    console.log("New Student Added:", newStudent);
+    alert(`Student ${newStudent.firstName} added successfully!`);
+    setShowAddStudent(false);
+    setNewStudent({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      gender: "",
+      dob: "",
+      address: "",
+      aadhar: "",
+      classId: "",
+      subClassId: "",
+      createdAt: "",
+      updatedAt: "",
+      image: null,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
       {/* Header */}
@@ -66,22 +121,25 @@ function AdminDashboard() {
       </header>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-6xl mb-8">
-        <div className="bg-white rounded-2xl shadow p-6 text-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-6xl mb-8">
+        <div
+          className="bg-white rounded-2xl shadow p-6 text-center cursor-pointer hover:shadow-lg transition"
+          onClick={() => navigate("/students")} // ✅ lowercase function
+        >
           <h2 className="text-lg font-semibold text-gray-700">
             Total Students
           </h2>
           <p className="text-3xl font-bold text-blue-600 mt-2">320</p>
         </div>
-        <div className="bg-white rounded-2xl shadow p-6 text-center">
-          <h2 className="text-lg font-semibold text-gray-700">Total Classes</h2>
-          <p className="text-3xl font-bold text-green-600 mt-2">12</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow p-6 text-center">
+
+       <div
+          className="bg-white rounded-2xl shadow p-6 text-center cursor-pointer hover:shadow-lg transition"
+          onClick={() => navigate("/teacher-list")} // ✅ lowercase function
+        >
           <h2 className="text-lg font-semibold text-gray-700">
-            Attendance Sessions
+            Total Teachers
           </h2>
-          <p className="text-3xl font-bold text-indigo-600 mt-2">145</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">320</p>
         </div>
       </div>
 
@@ -106,6 +164,12 @@ function AdminDashboard() {
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition"
           >
             Add Teacher
+          </button>
+          <button
+            onClick={() => setShowAddStudent(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition"
+          >
+            Add Student
           </button>
         </div>
       </div>
@@ -222,82 +286,21 @@ function AdminDashboard() {
           );
         })()}
 
-      {/* Add Teacher Modal */}
-      {showAddTeacher && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-11/12 max-w-md relative shadow-xl">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
-              Add New Teacher
-            </h2>
-            <form onSubmit={handleAddTeacher} className="space-y-4">
-              <div>
-                <label className="block text-gray-700 font-medium mb-1">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  value={newTeacher.name}
-                  onChange={(e) =>
-                    setNewTeacher({ ...newTeacher, name: e.target.value })
-                  }
-                  required
-                  className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-1">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  value={newTeacher.subject}
-                  onChange={(e) =>
-                    setNewTeacher({ ...newTeacher, subject: e.target.value })
-                  }
-                  required
-                  className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={newTeacher.email}
-                  onChange={(e) =>
-                    setNewTeacher({ ...newTeacher, email: e.target.value })
-                  }
-                  required
-                  className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
+       <AddTeacherModal
+      show={showAddTeacher}
+      onClose={() => setShowAddTeacher(false)}
+      newTeacher={newTeacher}
+      setNewTeacher={setNewTeacher}
+      handleAddTeacher={handleAddTeacher}
+    />
 
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddTeacher(false)}
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-                >
-                  Add Teacher
-                </button>
-              </div>
-            </form>
-            <button
-              onClick={() => setShowAddTeacher(false)}
-              className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl font-bold"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
+    <AddStudentModal
+      show={showAddStudent}
+      onClose={() => setShowAddStudent(false)}
+      newStudent={newStudent}
+      setNewStudent={setNewStudent}
+      handleAddStudent={handleAddStudent}
+    />
     </div>
   );
 }
